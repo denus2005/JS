@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Розв’язання прямокутного трикутника</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        input, select { margin: 5px; }
+        button { margin: 10px 0; padding: 5px 15px; }
+        #result { margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Прямокутний трикутник</h1>
+    <p>Введіть два значення та їх типи, потім натисніть "Розрахувати".</p>
+
+    <input id="value1" placeholder="Значення 1">
+    <select id="type1">
+        <option value="leg">leg (катет)</option>
+        <option value="hypotenuse">hypotenuse (гіпотенуза)</option>
+        <option value="angle">angle (гострий кут при гіпотенузі)</option>
+    </select>
+    <br>
+    <input id="value2" placeholder="Значення 2">
+    <select id="type2">
+        <option value="leg">leg (катет)</option>
+        <option value="hypotenuse">hypotenuse (гіпотенуза)</option>
+        <option value="angle">angle (гострий кут при гіпотенузі)</option>
+    </select>
+    <br>
+    <button onclick="runTriangle()">Розрахувати</button>
+
+    <div id="result"></div>
+
+    <script>
+       
+        function triangle(value1, type1, value2, type2) {
+            const degToRad = deg => deg * Math.PI / 180;
+            const radToDeg = rad => rad * 180 / Math.PI;
+
+            let a, b, c, alpha, beta;
+            const validTypes = ["leg", "hypotenuse", "angle"];
+            if (!validTypes.includes(type1) || !validTypes.includes(type2)) {
+                console.log("Некоректний тип аргументу. Перечитайте інструкцію.");
+                return "failed";
+            }
+            if (value1 <= 0 || value2 <= 0) {
+                console.log("Значення сторін або кутів повинні бути більше нуля.");
+                return "failed";
+            }
+
+            try {
+                if (type1 === "leg" && type2 === "leg") {
+                    a = value1; b = value2;
+                    c = Math.sqrt(a*a + b*b);
+                    alpha = radToDeg(Math.asin(a/c));
+                    beta = 90 - alpha;
+                } else if ((type1 === "leg" && type2 === "hypotenuse") || (type1 === "hypotenuse" && type2 === "leg")) {
+                    if (type1 === "leg") { a = value1; c = value2; } else { a = value2; c = value1; }
+                    if (a >= c) { console.log("Катет не може бути більший або рівний гіпотенузі."); return "failed"; }
+                    b = Math.sqrt(c*c - a*a);
+                    alpha = radToDeg(Math.asin(a/c));
+                    beta = 90 - alpha;
+                } else if ((type1 === "angle" && type2 === "leg") || (type2 === "angle" && type1 === "leg")) {
+                    let angleDeg = type1 === "angle" ? value1 : value2;
+                    let legVal = type1 === "leg" ? value1 : value2;
+                    if (angleDeg <= 0 || angleDeg >= 90) { console.log("Гострий кут має бути менше 90 градусів."); return "failed"; }
+                    alpha = type1 === "angle" ? angleDeg : angleDeg;
+                    let angleRad = degToRad(alpha);
+                    if (type1 === "leg") { a = legVal; b = a / Math.tan(angleRad); } 
+                    else { b = legVal; a = b * Math.tan(angleRad); }
+                    c = Math.sqrt(a*a + b*b);
+                    beta = 90 - alpha;
+                } else {
+                    console.log("Ця комбінація аргументів не підтримується або некоректна.");
+                    return "failed";
+                }
+
+                console.log(`a = ${a.toFixed(2)}, b = ${b.toFixed(2)}, c = ${c.toFixed(2)}, alpha = ${alpha.toFixed(2)}, beta = ${beta.toFixed(2)}`);
+                return {a, b, c, alpha, beta};
+            } catch (error) {
+                console.log("Помилка при обчисленнях:", error);
+                return "failed";
+            }
+        }
+
+        
+        function runTriangle() {
+            let v1 = parseFloat(document.getElementById("value1").value);
+            let t1 = document.getElementById("type1").value;
+            let v2 = parseFloat(document.getElementById("value2").value);
+            let t2 = document.getElementById("type2").value;
+
+            let res = triangle(v1, t1, v2, t2);
+
+            if (res === "failed") {
+                document.getElementById("result").innerText = "Некоректні дані. Перевірте введення.";
+            } else {
+                document.getElementById("result").innerText =
+                    `Результати:\n a = ${res.a.toFixed(2)}\n b = ${res.b.toFixed(2)}\n c = ${res.c.toFixed(2)}\n alpha = ${res.alpha.toFixed(2)}°\n beta = ${res.beta.toFixed(2)}°`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -3,7 +3,6 @@ console.log("type може бути: 'leg' (катет), 'hypotenuse' (гіпо�
 console.log("Використовувати градуси для кутів. Результат виводиться в консоль.");
 
 function triangle(value1, type1, value2, type2) {
-
     const degToRad = deg => deg * Math.PI / 180;
     const radToDeg = rad => rad * 180 / Math.PI;
 
@@ -11,120 +10,118 @@ function triangle(value1, type1, value2, type2) {
 
     const validTypes = ["leg", "hypotenuse", "adjacent angle", "opposite angle", "angle"];
 
+    // Перевірка типів
     if (!validTypes.includes(type1) || !validTypes.includes(type2)) {
-        console.log("Некоректний тип аргументу.");
+        console.log("Некоректний тип. Перечитайте інструкцію.");
         return "failed";
     }
 
-    if (value1 <= 0 || value2 <= 0 || !isFinite(value1) || !isFinite(value2)) {
+    // Перевірка значень
+    if (!Number.isFinite(value1) || !Number.isFinite(value2) || value1 <= 0 || value2 <= 0) {
         console.log("Значення повинні бути додатніми та скінченними.");
         return "failed";
     }
+
+    // Функція для перевірки гострого кута
+    const checkAngle = ang => ang > 0 && ang < 90;
 
     try {
 
         // ----- LEG + LEG -----
         if (type1 === "leg" && type2 === "leg") {
-            a = value1;
-            b = value2;
+            a = value1; b = value2;
             c = Math.hypot(a, b);
-            alpha = radToDeg(Math.atan(a / b));
-            beta = 90 - alpha;
-        }
-
-        // ----- LEG + HYPOTENUSE -----
-        else if (
-            (type1 === "leg" && type2 === "hypotenuse") ||
-            (type2 === "leg" && type1 === "hypotenuse")
-        ) {
-            a = type1 === "leg" ? value1 : value2;
-            c = type1 === "hypotenuse" ? value1 : value2;
-
-            if (a >= c) {
-                console.log("Катет не може бути більший або рівний гіпотенузі.");
-                return "failed";
-            }
-
-            b = Math.sqrt(c * c - a * a);
             alpha = radToDeg(Math.asin(a / c));
             beta = 90 - alpha;
         }
 
-        // ----- HYPOTENUSE + ANY ANGLE -----
-        else if (
-            (type1 === "hypotenuse" && validTypes.includes(type2) && type2.includes("angle")) ||
-            (type2 === "hypotenuse" && validTypes.includes(type1) && type1.includes("angle"))
-        ) {
+        // ----- LEG + HYPOTENUSE -----
+        else if ((type1 === "leg" && type2 === "hypotenuse") || (type2 === "leg" && type1 === "hypotenuse")) {
+            a = type1 === "leg" ? value1 : value2;
             c = type1 === "hypotenuse" ? value1 : value2;
-            let angle = type1.includes("angle") ? value1 : value2;
-
-            if (angle <= 0 || angle >= 90) {
-                console.log("Гострий кут має бути між 0 та 90.");
-                return "failed";
-            }
-
-            alpha = angle;
+            if (a >= c) { console.log("Катет не може бути більший або рівний гіпотенузі."); return "failed"; }
+            b = Math.sqrt(c*c - a*a);
+            alpha = radToDeg(Math.asin(a / c));
             beta = 90 - alpha;
+        }
 
+        // ----- HYPOTENUSE + ANGLE (тільки "angle") -----
+        else if ((type1 === "hypotenuse" && type2 === "angle") || (type2 === "hypotenuse" && type1 === "angle")) {
+            c = type1 === "hypotenuse" ? value1 : value2;
+            alpha = type1 === "angle" ? value1 : value2;
+            if (!checkAngle(alpha)) { console.log("Кут повинен бути гострим."); return "failed"; }
             let rad = degToRad(alpha);
-
             a = c * Math.sin(rad);
             b = c * Math.cos(rad);
-        }
-
-        // ----- LEG + ANGLE -----
-        else if (
-            (type1 === "leg" && type2.includes("angle")) ||
-            (type2 === "leg" && type1.includes("angle"))
-        ) {
-            let leg = type1 === "leg" ? value1 : value2;
-            let angle = type1.includes("angle") ? value1 : value2;
-            let angleType = type1.includes("angle") ? type1 : type2;
-
-            if (angle <= 0 || angle >= 90) {
-                console.log("Гострий кут має бути між 0 та 90.");
-                return "failed";
-            }
-
-            let rad = degToRad(angle);
-
-            if (angleType === "adjacent angle") {
-                b = leg;
-                a = b * Math.tan(rad);
-            } else if (angleType === "opposite angle") {
-                a = leg;
-                b = a / Math.tan(rad);
-            } else { // "angle"
-                a = leg;
-                b = a / Math.tan(rad);
-            }
-
-            c = Math.hypot(a, b);
-            alpha = angle;
             beta = 90 - alpha;
         }
 
+        // ----- LEG + ADJACENT ANGLE -----
+        else if ((type1 === "leg" && type2 === "adjacent angle") || (type2 === "leg" && type1 === "adjacent angle")) {
+            b = type1 === "leg" ? value1 : value2;
+            beta = type1 === "adjacent angle" ? value1 : value2;
+            if (!checkAngle(beta)) { console.log("Кут повинен бути гострим."); return "failed"; }
+            let rad = degToRad(beta);
+            a = b * Math.tan(rad);
+            c = Math.hypot(a, b);
+            alpha = 90 - beta;
+        }
+
+        // ----- LEG + OPPOSITE ANGLE -----
+        else if ((type1 === "leg" && type2 === "opposite angle") || (type2 === "leg" && type1 === "opposite angle")) {
+            a = type1 === "leg" ? value1 : value2;
+            alpha = type1 === "opposite angle" ? value1 : value2;
+            if (!checkAngle(alpha)) { console.log("Кут повинен бути гострим."); return "failed"; }
+            let rad = degToRad(alpha);
+            b = a / Math.tan(rad);
+            c = Math.hypot(a, b);
+            beta = 90 - alpha;
+        }
+
+        // ----- HYPOTENUSE + ADJACENT ANGLE -----
+        else if ((type1 === "hypotenuse" && type2 === "adjacent angle") || (type2 === "hypotenuse" && type1 === "adjacent angle")) {
+            c = type1 === "hypotenuse" ? value1 : value2;
+            beta = type1 === "adjacent angle" ? value1 : value2;
+            if (!checkAngle(beta)) { console.log("Кут повинен бути гострим."); return "failed"; }
+            let rad = degToRad(beta);
+            b = c * Math.cos(rad);
+            a = Math.sqrt(c*c - b*b);
+            alpha = 90 - beta;
+        }
+
+        // ----- HYPOTENUSE + OPPOSITE ANGLE -----
+        else if ((type1 === "hypotenuse" && type2 === "opposite angle") || (type2 === "hypotenuse" && type1 === "opposite angle")) {
+            c = type1 === "hypotenuse" ? value1 : value2;
+            alpha = type1 === "opposite angle" ? value1 : value2;
+            if (!checkAngle(alpha)) { console.log("Кут повинен бути гострим."); return "failed"; }
+            let rad = degToRad(alpha);
+            a = c * Math.sin(rad);
+            b = Math.sqrt(c*c - a*a);
+            beta = 90 - alpha;
+        }
+
+        // ----- НЕПІДТРИМУВАНІ КОМБІНАЦІЇ -----
         else {
-            console.log("Ця комбінація параметрів не підтримується.");
+            console.log("Несумісна пара типів. Перечитайте інструкцію.");
             return "failed";
         }
 
-        // Перевірка на граничні значення
-        if (!isFinite(a) || !isFinite(b) || !isFinite(c)) {
-            console.log("Обчислення призвели до некоректного результату.");
+        // Перевірка на Infinity / NaN
+        if (![a,b,c,alpha,beta].every(Number.isFinite)) {
+            console.log("Помилка обчислення.");
             return "failed";
         }
 
-        console.log(`a (катет) = ${a.toFixed(2)}`);
-        console.log(`b (катет) = ${b.toFixed(2)}`);
-        console.log(`c (гіпотенуза) = ${c.toFixed(2)}`);
-        console.log(`alpha (°) = ${alpha.toFixed(2)}`);
-        console.log(`beta (°) = ${beta.toFixed(2)}`);
+        console.log(`a = ${a.toFixed(2)}`);
+        console.log(`b = ${b.toFixed(2)}`);
+        console.log(`c = ${c.toFixed(2)}`);
+        console.log(`alpha = ${alpha.toFixed(2)}°`);
+        console.log(`beta = ${beta.toFixed(2)}°`);
 
         return "success";
 
-    } catch (error) {
-        console.log("Помилка обчислення:", error);
+    } catch {
+        console.log("Помилка виконання.");
         return "failed";
     }
 }

@@ -1,28 +1,25 @@
 const SortLib = (function () {
 
+    // Підготовка масиву: видаляє undefined та повідомляє про наявність
     function prepareArray(arr) {
         let hasUndefined = false;
         let cleanArr = [];
-
         for (let i = 0; i < arr.length; i++) {
-            if (arr[i] === undefined) {
-                hasUndefined = true;
-            } else {
-                cleanArr.push(arr[i]);
-            }
+            if (arr[i] === undefined) hasUndefined = true;
+            else cleanArr.push(arr[i]);
         }
-
-        if (hasUndefined) {
-            console.log("⚠️ Є undefined (розріджений масив)");
-        }
-
+        if (hasUndefined) console.log("⚠ Масив містив undefined-елементи (розріджений масив)");
         return cleanArr;
     }
 
+    // Порівняння двох елементів з урахуванням сортування
     function compare(a, b, asc) {
         return asc ? a > b : a < b;
     }
 
+    // ------------------------
+    // 1. Сортування обміну (Bubble)
+    // ------------------------
     function bubbleSort(arr, asc = true) {
         let a = prepareArray(arr);
         let comparisons = 0, swaps = 0;
@@ -37,10 +34,13 @@ const SortLib = (function () {
             }
         }
 
-        console.log("Bubble:", { comparisons, swaps });
+        console.log(`BubbleSort - comparisons: ${comparisons}, swaps: ${swaps}`);
         return a;
     }
 
+    // ------------------------
+    // 2. Сортування мінімальних елементів (Selection)
+    // ------------------------
     function selectionSort(arr, asc = true) {
         let a = prepareArray(arr);
         let comparisons = 0, swaps = 0;
@@ -49,9 +49,7 @@ const SortLib = (function () {
             let min = i;
             for (let j = i + 1; j < a.length; j++) {
                 comparisons++;
-                if (compare(a[min], a[j], asc)) {
-                    min = j;
-                }
+                if (compare(a[min], a[j], asc)) min = j;
             }
             if (min !== i) {
                 [a[i], a[min]] = [a[min], a[i]];
@@ -59,10 +57,13 @@ const SortLib = (function () {
             }
         }
 
-        console.log("Selection:", { comparisons, swaps });
+        console.log(`SelectionSort - comparisons: ${comparisons}, swaps: ${swaps}`);
         return a;
     }
 
+    // ------------------------
+    // 3. Сортування вставками (Insertion)
+    // ------------------------
     function insertionSort(arr, asc = true) {
         let a = prepareArray(arr);
         let comparisons = 0, swaps = 0;
@@ -74,7 +75,6 @@ const SortLib = (function () {
             while (j >= 0) {
                 comparisons++;
                 if (!compare(a[j], key, asc)) break;
-
                 a[j + 1] = a[j];
                 swaps++;
                 j--;
@@ -82,10 +82,13 @@ const SortLib = (function () {
             a[j + 1] = key;
         }
 
-        console.log("Insertion:", { comparisons, swaps });
+        console.log(`InsertionSort - comparisons: ${comparisons}, swaps: ${swaps}`);
         return a;
     }
 
+    // ------------------------
+    // 4. Сортування Шелла (Shell)
+    // ------------------------
     function shellSort(arr, asc = true) {
         let a = prepareArray(arr);
         let gap = Math.floor(a.length / 2);
@@ -99,7 +102,6 @@ const SortLib = (function () {
                 while (j >= gap) {
                     comparisons++;
                     if (!compare(a[j - gap], temp, asc)) break;
-
                     a[j] = a[j - gap];
                     swaps++;
                     j -= gap;
@@ -109,10 +111,13 @@ const SortLib = (function () {
             gap = Math.floor(gap / 2);
         }
 
-        console.log("Shell:", { comparisons, swaps });
+        console.log(`ShellSort - comparisons: ${comparisons}, swaps: ${swaps}`);
         return a;
     }
 
+    // ------------------------
+    // 5. Сортування Хоара (Quick)
+    // ------------------------
     function quickSort(arr, asc = true) {
         let a = prepareArray(arr);
         let comparisons = 0, swaps = 0;
@@ -138,7 +143,7 @@ const SortLib = (function () {
 
         qs(0, a.length - 1);
 
-        console.log("Quick:", { comparisons, swaps });
+        console.log(`QuickSort - comparisons: ${comparisons}, swaps: ${swaps}`);
         return a;
     }
 

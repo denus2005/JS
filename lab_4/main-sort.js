@@ -4,10 +4,10 @@ function generateArray(size) {
     );
 }
 
-// звичайний масив
+
 let normalArray = generateArray(100);
 
-// розріджений масив
+
 let sparseArray = generateArray(100);
 sparseArray[10] = undefined;
 sparseArray[40] = undefined;

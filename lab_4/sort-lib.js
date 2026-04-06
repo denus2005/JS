@@ -1,153 +1,211 @@
-const SortLib = (function () {
+const SortToolkit = (() => {
 
-    function prepareArray(arr) {
-        let hasUndefined = false;
-        let cleanArr = [];
+    const checkInput = (data) => {
+        if (!(data instanceof Array)) {
+            throw new Error("Потрібно передати масив");
+        }
+    };
 
-        for (let i = 0; i < arr.length; i++) {
-            if (arr[i] === undefined) {
-                hasUndefined = true;
-            } else {
-                cleanArr.push(arr[i]);
-            }
+    const toStringArray = (data) =>
+        "[" + data.map(x => x === undefined ? "undef" : x).join(" | ") + "]";
+
+    const writeOut = (msg) => {
+        console.log(msg);
+        const el = document.querySelector("#output");
+        if (el) el.textContent += msg + "\n";
+    };
+
+    const splitArray = (data) => {
+        let values = [];
+        let empty = 0;
+
+        for (let val of data) {
+            if (val === undefined) empty++;
+            else values.push(val);
         }
 
-        if (hasUndefined) {
-            console.log("⚠️ Є undefined (розріджений масив)");
+        return { values, empty };
+    };
+
+    const mergeBack = (target, values, empty) => {
+        let i = 0;
+
+        for (; i < values.length; i++) {
+            target[i] = values[i];
         }
 
-        return cleanArr;
-    }
+        while (i < values.length + empty) {
+            target[i++] = undefined;
+        }
 
-    function compare(a, b, asc) {
-        return asc ? a > b : a < b;
-    }
+        return target;
+    };
 
-    function bubbleSort(arr, asc = true) {
-        let a = prepareArray(arr);
-        let comparisons = 0, swaps = 0;
+    const showInfo = (name, cmp, mv, hadEmpty, arr) => {
+        writeOut(`=== ${name} ===`);
+        writeOut(`cmp: ${cmp}`);
+        writeOut(`moves: ${mv}`);
+        if (hadEmpty) {
+            writeOut("є undefined -> перенесено в кінець");
+        }
+        writeOut(`=> ${toStringArray(arr)}\n`);
+    };
 
-        for (let i = 0; i < a.length - 1; i++) {
-            for (let j = 0; j < a.length - i - 1; j++) {
-                comparisons++;
-                if (compare(a[j], a[j + 1], asc)) {
-                    [a[j], a[j + 1]] = [a[j + 1], a[j]];
-                    swaps++;
+    // Bubble
+    const bubble = (data, asc = true) => {
+        checkInput(data);
+        const { values, empty } = splitArray(data);
+
+        let cmp = 0, mv = 0;
+
+        for (let i = 0; i < values.length; i++) {
+            for (let j = 0; j < values.length - 1 - i; j++) {
+                cmp++;
+                if (asc ? values[j] > values[j + 1] : values[j] < values[j + 1]) {
+                    [values[j], values[j + 1]] = [values[j + 1], values[j]];
+                    mv++;
                 }
             }
         }
 
-        console.log("Bubble:", { comparisons, swaps });
-        return a;
-    }
+        mergeBack(data, values, empty);
+        showInfo("Bubble", cmp, mv, empty > 0, data);
+        return data;
+    };
 
-    function selectionSort(arr, asc = true) {
-        let a = prepareArray(arr);
-        let comparisons = 0, swaps = 0;
+    // Selection
+    const select = (data, asc = true) => {
+        checkInput(data);
+        const { values, empty } = splitArray(data);
 
-        for (let i = 0; i < a.length - 1; i++) {
-            let min = i;
-            for (let j = i + 1; j < a.length; j++) {
-                comparisons++;
-                if (compare(a[min], a[j], asc)) {
-                    min = j;
+        let cmp = 0, mv = 0;
+
+        for (let i = 0; i < values.length; i++) {
+            let best = i;
+
+            for (let j = i + 1; j < values.length; j++) {
+                cmp++;
+                if (asc ? values[j] < values[best] : values[j] > values[best]) {
+                    best = j;
                 }
             }
-            if (min !== i) {
-                [a[i], a[min]] = [a[min], a[i]];
-                swaps++;
+
+            if (best !== i) {
+                [values[i], values[best]] = [values[best], values[i]];
+                mv++;
             }
         }
 
-        console.log("Selection:", { comparisons, swaps });
-        return a;
-    }
+        mergeBack(data, values, empty);
+        showInfo("Selection", cmp, mv, empty > 0, data);
+        return data;
+    };
 
-    function insertionSort(arr, asc = true) {
-        let a = prepareArray(arr);
-        let comparisons = 0, swaps = 0;
+    // Insertion
+    const insert = (data, asc = true) => {
+        checkInput(data);
+        const { values, empty } = splitArray(data);
 
-        for (let i = 1; i < a.length; i++) {
-            let key = a[i];
+        let cmp = 0, mv = 0;
+
+        for (let i = 1; i < values.length; i++) {
+            let cur = values[i];
             let j = i - 1;
 
             while (j >= 0) {
-                comparisons++;
-                if (!compare(a[j], key, asc)) break;
+                cmp++;
+                if (!(asc ? values[j] > cur : values[j] < cur)) break;
 
-                a[j + 1] = a[j];
-                swaps++;
+                values[j + 1] = values[j];
+                mv++;
                 j--;
             }
-            a[j + 1] = key;
+
+            values[j + 1] = cur;
+            mv++;
         }
 
-        console.log("Insertion:", { comparisons, swaps });
-        return a;
-    }
+        mergeBack(data, values, empty);
+        showInfo("Insertion", cmp, mv, empty > 0, data);
+        return data;
+    };
 
-    function shellSort(arr, asc = true) {
-        let a = prepareArray(arr);
-        let gap = Math.floor(a.length / 2);
-        let comparisons = 0, swaps = 0;
+    // Shell
+    const shell = (data, asc = true) => {
+        checkInput(data);
+        const { values, empty } = splitArray(data);
 
-        while (gap > 0) {
-            for (let i = gap; i < a.length; i++) {
-                let temp = a[i];
+        let cmp = 0, mv = 0;
+
+        for (let gap = Math.floor(values.length / 2); gap > 0; gap >>= 1) {
+            for (let i = gap; i < values.length; i++) {
+                let temp = values[i];
                 let j = i;
 
                 while (j >= gap) {
-                    comparisons++;
-                    if (!compare(a[j - gap], temp, asc)) break;
+                    cmp++;
+                    if (!(asc ? values[j - gap] > temp : values[j - gap] < temp)) break;
 
-                    a[j] = a[j - gap];
-                    swaps++;
+                    values[j] = values[j - gap];
+                    mv++;
                     j -= gap;
                 }
-                a[j] = temp;
+
+                values[j] = temp;
+                mv++;
             }
-            gap = Math.floor(gap / 2);
         }
 
-        console.log("Shell:", { comparisons, swaps });
-        return a;
-    }
+        mergeBack(data, values, empty);
+        showInfo("Shell", cmp, mv, empty > 0, data);
+        return data;
+    };
 
-    function quickSort(arr, asc = true) {
-        let a = prepareArray(arr);
-        let comparisons = 0, swaps = 0;
+    // Quick
+    const quick = (data, asc = true) => {
+        checkInput(data);
+        const { values, empty } = splitArray(data);
 
-        function qs(left, right) {
-            let i = left, j = right;
-            let pivot = a[Math.floor((left + right) / 2)];
+        let cmp = 0, mv = 0;
+
+        const qs = (l, r) => {
+            if (l >= r) return;
+
+            let pivot = values[(l + r) >> 1];
+            let i = l, j = r;
 
             while (i <= j) {
-                while ((comparisons++, compare(pivot, a[i], asc))) i++;
-                while ((comparisons++, compare(a[j], pivot, asc))) j--;
+                while ((cmp++, asc ? values[i] < pivot : values[i] > pivot)) i++;
+                while ((cmp++, asc ? values[j] > pivot : values[j] < pivot)) j--;
 
                 if (i <= j) {
-                    [a[i], a[j]] = [a[j], a[i]];
-                    swaps++;
+                    if (i !== j) {
+                        [values[i], values[j]] = [values[j], values[i]];
+                        mv++;
+                    }
                     i++; j--;
                 }
             }
 
-            if (left < j) qs(left, j);
-            if (i < right) qs(i, right);
-        }
+            if (l < j) qs(l, j);
+            if (i < r) qs(i, r);
+        };
 
-        qs(0, a.length - 1);
+        qs(0, values.length - 1);
 
-        console.log("Quick:", { comparisons, swaps });
-        return a;
-    }
+        mergeBack(data, values, empty);
+        showInfo("Quick", cmp, mv, empty > 0, data);
+        return data;
+    };
 
     return {
-        bubbleSort,
-        selectionSort,
-        insertionSort,
-        shellSort,
-        quickSort
+        bubble,
+        select,
+        insert,
+        shell,
+        quick
     };
 
 })();
+
+window.SortToolkit = SortToolkit;

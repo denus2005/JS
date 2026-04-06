@@ -1,138 +1,142 @@
-const SortLib = (function () {
+// Псевдопростір імен
+const SortLib = {
 
-    // Підготовка масиву: видаляє undefined та повідомляє про наявність
-    function prepareArray(arr) {
-        let hasUndefined = false;
-        let cleanArr = [];
-        for (let i = 0; i < arr.length; i++) {
-            if (arr[i] === undefined) hasUndefined = true;
-            else cleanArr.push(arr[i]);
+    // Перевірка undefined (для sparse arrays)
+    handleUndefined(arr) {
+        let hasUndefined = arr.some(el => el === undefined);
+        if (hasUndefined) {
+            console.log("⚠ Масив містить undefined елементи");
         }
-        if (hasUndefined) console.log("⚠ Масив містив undefined-елементи (розріджений масив)");
-        return cleanArr;
-    }
+    },
 
-    // Порівняння двох елементів з урахуванням сортування
-    function compare(a, b, asc) {
+    compare(a, b, asc) {
+        if (a === undefined) return false;
+        if (b === undefined) return true;
         return asc ? a > b : a < b;
-    }
+    },
 
-    // ------------------------
-    // 1. Сортування обміну (Bubble)
-    // ------------------------
-    function bubbleSort(arr, asc = true) {
-        let a = prepareArray(arr);
-        let comparisons = 0, swaps = 0;
+    // 1. Сортування обміну (bubble)
+    bubbleSort(arr, asc = true) {
+        let a = [...arr];
+        let cmp = 0, swap = 0;
+
+        this.handleUndefined(a);
 
         for (let i = 0; i < a.length - 1; i++) {
             for (let j = 0; j < a.length - i - 1; j++) {
-                comparisons++;
-                if (compare(a[j], a[j + 1], asc)) {
+                cmp++;
+                if (this.compare(a[j], a[j + 1], asc)) {
                     [a[j], a[j + 1]] = [a[j + 1], a[j]];
-                    swaps++;
+                    swap++;
                 }
             }
         }
 
-        console.log(`BubbleSort - comparisons: ${comparisons}, swaps: ${swaps}`);
+        console.log("BubbleSort:", { cmp, swap });
         return a;
-    }
+    },
 
-    // ------------------------
-    // 2. Сортування мінімальних елементів (Selection)
-    // ------------------------
-    function selectionSort(arr, asc = true) {
-        let a = prepareArray(arr);
-        let comparisons = 0, swaps = 0;
+    // 2. Сортування мінімальних елементів (selection)
+    selectionSort(arr, asc = true) {
+        let a = [...arr];
+        let cmp = 0, swap = 0;
+
+        this.handleUndefined(a);
 
         for (let i = 0; i < a.length - 1; i++) {
-            let min = i;
+            let idx = i;
             for (let j = i + 1; j < a.length; j++) {
-                comparisons++;
-                if (compare(a[min], a[j], asc)) min = j;
+                cmp++;
+                if (this.compare(a[idx], a[j], asc)) {
+                    idx = j;
+                }
             }
-            if (min !== i) {
-                [a[i], a[min]] = [a[min], a[i]];
-                swaps++;
+            if (idx !== i) {
+                [a[i], a[idx]] = [a[idx], a[i]];
+                swap++;
             }
         }
 
-        console.log(`SelectionSort - comparisons: ${comparisons}, swaps: ${swaps}`);
+        console.log("SelectionSort:", { cmp, swap });
         return a;
-    }
+    },
 
-    // ------------------------
-    // 3. Сортування вставками (Insertion)
-    // ------------------------
-    function insertionSort(arr, asc = true) {
-        let a = prepareArray(arr);
-        let comparisons = 0, swaps = 0;
+    // 3. Сортування вставками
+    insertionSort(arr, asc = true) {
+        let a = [...arr];
+        let cmp = 0, move = 0;
+
+        this.handleUndefined(a);
 
         for (let i = 1; i < a.length; i++) {
             let key = a[i];
             let j = i - 1;
 
             while (j >= 0) {
-                comparisons++;
-                if (!compare(a[j], key, asc)) break;
+                cmp++;
+                if (!this.compare(a[j], key, asc)) break;
                 a[j + 1] = a[j];
-                swaps++;
+                move++;
                 j--;
             }
             a[j + 1] = key;
         }
 
-        console.log(`InsertionSort - comparisons: ${comparisons}, swaps: ${swaps}`);
+        console.log("InsertionSort:", { cmp, move });
         return a;
-    }
+    },
 
-    // ------------------------
-    // 4. Сортування Шелла (Shell)
-    // ------------------------
-    function shellSort(arr, asc = true) {
-        let a = prepareArray(arr);
-        let gap = Math.floor(a.length / 2);
-        let comparisons = 0, swaps = 0;
+    // 4. Сортування Шелла
+    shellSort(arr, asc = true) {
+        let a = [...arr];
+        let cmp = 0, move = 0;
 
-        while (gap > 0) {
+        this.handleUndefined(a);
+
+        for (let gap = Math.floor(a.length / 2); gap > 0; gap = Math.floor(gap / 2)) {
             for (let i = gap; i < a.length; i++) {
                 let temp = a[i];
                 let j = i;
 
                 while (j >= gap) {
-                    comparisons++;
-                    if (!compare(a[j - gap], temp, asc)) break;
+                    cmp++;
+                    if (!this.compare(a[j - gap], temp, asc)) break;
                     a[j] = a[j - gap];
-                    swaps++;
+                    move++;
                     j -= gap;
                 }
                 a[j] = temp;
             }
-            gap = Math.floor(gap / 2);
         }
 
-        console.log(`ShellSort - comparisons: ${comparisons}, swaps: ${swaps}`);
+        console.log("ShellSort:", { cmp, move });
         return a;
-    }
+    },
 
-    // ------------------------
-    // 5. Сортування Хоара (Quick)
-    // ------------------------
-    function quickSort(arr, asc = true) {
-        let a = prepareArray(arr);
-        let comparisons = 0, swaps = 0;
+    // 5. Швидке сортування (Хоара)
+    quickSort(arr, asc = true) {
+        let a = [...arr];
+        let cmp = 0, swap = 0;
+
+        this.handleUndefined(a);
 
         function qs(left, right) {
-            let i = left, j = right;
+            if (left >= right) return;
+
             let pivot = a[Math.floor((left + right) / 2)];
+            let i = left, j = right;
 
             while (i <= j) {
-                while ((comparisons++, compare(pivot, a[i], asc))) i++;
-                while ((comparisons++, compare(a[j], pivot, asc))) j--;
+                while (a[i] !== undefined && (asc ? a[i] < pivot : a[i] > pivot)) {
+                    i++; cmp++;
+                }
+                while (a[j] !== undefined && (asc ? a[j] > pivot : a[j] < pivot)) {
+                    j--; cmp++;
+                }
 
                 if (i <= j) {
                     [a[i], a[j]] = [a[j], a[i]];
-                    swaps++;
+                    swap++;
                     i++; j--;
                 }
             }
@@ -143,16 +147,7 @@ const SortLib = (function () {
 
         qs(0, a.length - 1);
 
-        console.log(`QuickSort - comparisons: ${comparisons}, swaps: ${swaps}`);
+        console.log("QuickSort:", { cmp, swap });
         return a;
     }
-
-    return {
-        bubbleSort,
-        selectionSort,
-        insertionSort,
-        shellSort,
-        quickSort
-    };
-
-})();
+};

@@ -13,7 +13,7 @@ const SortLib = (function () {
         }
 
         if (hasUndefined) {
-            console.log("⚠ Є undefined (розріджений масив)");
+            console.log("⚠️ Є undefined (розріджений масив)");
         }
 
         return cleanArr;
@@ -151,23 +151,3 @@ const SortLib = (function () {
     };
 
 })();
-
-
-
-const arr = [5, 3, 8, 1, 2, undefined, 7];
-
-console.log("Оригінал:", arr);
-
-console.log("Bubble:", SortLib.bubbleSort(arr));
-console.log("Selection:", SortLib.selectionSort(arr));
-console.log("Insertion:", SortLib.insertionSort(arr));
-console.log("Shell:", SortLib.shellSort(arr));
-console.log("Quick:", SortLib.quickSort(arr));
-
-
-
-console.log("\n--- Усі алгоритми ---");
-
-for (let method in SortLib) {
-    console.log(method + ":", SortLib[method](arr));
-}

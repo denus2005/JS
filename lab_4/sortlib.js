@@ -1,211 +1,244 @@
-const SortToolkit = (() => {
-
-    const checkInput = (data) => {
-        if (!(data instanceof Array)) {
-            throw new Error("Потрібно передати масив");
+const SortLib = (function () {
+    function ensureArray(arr) {
+        if (!Array.isArray(arr)) {
+            throw new TypeError("Очікується масив.");
         }
-    };
+    }
 
-    const toStringArray = (data) =>
-        "[" + data.map(x => x === undefined ? "undef" : x).join(" | ") + "]";
+    function formatArray(arr) {
+        return `[${arr.map(v => v === undefined ? "undefined" : v).join(", ")}]`;
+    }
 
-    const writeOut = (msg) => {
-        console.log(msg);
-        const el = document.querySelector("#output");
-        if (el) el.textContent += msg + "\n";
-    };
-
-    const splitArray = (data) => {
-        let values = [];
-        let empty = 0;
-
-        for (let val of data) {
-            if (val === undefined) empty++;
-            else values.push(val);
+    function logToPage(text) {
+        const output = document.getElementById("output");
+        if (output) {
+            output.textContent += text + "\n";
         }
+    }
 
-        return { values, empty };
-    };
+    function printLine(text) {
+        console.log(text);
+        logToPage(text);
+    }
 
-    const mergeBack = (target, values, empty) => {
-        let i = 0;
+    function preprocessArray(arr) {
+        const clean = [];
+        let undefinedCount = 0;
 
-        for (; i < values.length; i++) {
-            target[i] = values[i];
-        }
-
-        while (i < values.length + empty) {
-            target[i++] = undefined;
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] === undefined) {
+                undefinedCount++;
+            } else {
+                clean.push(arr[i]);
+            }
         }
 
-        return target;
-    };
+        return { clean, undefinedCount };
+    }
 
-    const showInfo = (name, cmp, mv, hadEmpty, arr) => {
-        writeOut(`=== ${name} ===`);
-        writeOut(`cmp: ${cmp}`);
-        writeOut(`moves: ${mv}`);
-        if (hadEmpty) {
-            writeOut("є undefined -> перенесено в кінець");
+    function postprocessArray(originalArr, sortedClean, undefinedCount) {
+        originalArr.length = sortedClean.length + undefinedCount;
+
+        for (let i = 0; i < sortedClean.length; i++) {
+            originalArr[i] = sortedClean[i];
         }
-        writeOut(`=> ${toStringArray(arr)}\n`);
-    };
 
-    // Bubble
-    const bubble = (data, asc = true) => {
-        checkInput(data);
-        const { values, empty } = splitArray(data);
+        for (let i = 0; i < undefinedCount; i++) {
+            originalArr[sortedClean.length + i] = undefined;
+        }
 
-        let cmp = 0, mv = 0;
+        return originalArr;
+    }
 
-        for (let i = 0; i < values.length; i++) {
-            for (let j = 0; j < values.length - 1 - i; j++) {
-                cmp++;
-                if (asc ? values[j] > values[j + 1] : values[j] < values[j + 1]) {
-                    [values[j], values[j + 1]] = [values[j + 1], values[j]];
-                    mv++;
+    function printStats(methodName, comparisons, moves, hasUndefined, arr) {
+        printLine(`--- ${methodName} ---`);
+        printLine(`Порівнянь: ${comparisons}`);
+        printLine(`Обмінів/переміщень: ${moves}`);
+        if (hasUndefined) {
+            printLine("Повідомлення: у масиві виявлено undefined-елементи. Їх переміщено в кінець.");
+        }
+        printLine(`Результат: ${formatArray(arr)}`);
+        printLine("");
+    }
+
+    function bubbleSort(arr, ascending = true) {
+        ensureArray(arr);
+        const { clean, undefinedCount } = preprocessArray(arr);
+
+        let comparisons = 0;
+        let moves = 0;
+        const n = clean.length;
+
+        for (let i = 0; i < n - 1; i++) {
+            for (let j = 0; j < n - i - 1; j++) {
+                comparisons++;
+                const needSwap = ascending ? clean[j] > clean[j + 1] : clean[j] < clean[j + 1];
+                if (needSwap) {
+                    [clean[j], clean[j + 1]] = [clean[j + 1], clean[j]];
+                    moves++;
                 }
             }
         }
 
-        mergeBack(data, values, empty);
-        showInfo("Bubble", cmp, mv, empty > 0, data);
-        return data;
-    };
+        postprocessArray(arr, clean, undefinedCount);
+        printStats("Сортування обміном", comparisons, moves, undefinedCount > 0, arr);
+        return arr;
+    }
 
-    // Selection
-    const select = (data, asc = true) => {
-        checkInput(data);
-        const { values, empty } = splitArray(data);
+    function selectionSort(arr, ascending = true) {
+        ensureArray(arr);
+        const { clean, undefinedCount } = preprocessArray(arr);
 
-        let cmp = 0, mv = 0;
+        let comparisons = 0;
+        let moves = 0;
+        const n = clean.length;
 
-        for (let i = 0; i < values.length; i++) {
-            let best = i;
+        for (let i = 0; i < n - 1; i++) {
+            let targetIndex = i;
 
-            for (let j = i + 1; j < values.length; j++) {
-                cmp++;
-                if (asc ? values[j] < values[best] : values[j] > values[best]) {
-                    best = j;
+            for (let j = i + 1; j < n; j++) {
+                comparisons++;
+                const better = ascending ? clean[j] < clean[targetIndex] : clean[j] > clean[targetIndex];
+                if (better) {
+                    targetIndex = j;
                 }
             }
 
-            if (best !== i) {
-                [values[i], values[best]] = [values[best], values[i]];
-                mv++;
+            if (targetIndex !== i) {
+                [clean[i], clean[targetIndex]] = [clean[targetIndex], clean[i]];
+                moves++;
             }
         }
 
-        mergeBack(data, values, empty);
-        showInfo("Selection", cmp, mv, empty > 0, data);
-        return data;
-    };
+        postprocessArray(arr, clean, undefinedCount);
+        printStats("Сортування мінімальних елементів", comparisons, moves, undefinedCount > 0, arr);
+        return arr;
+    }
 
-    // Insertion
-    const insert = (data, asc = true) => {
-        checkInput(data);
-        const { values, empty } = splitArray(data);
+    function insertionSort(arr, ascending = true) {
+        ensureArray(arr);
+        const { clean, undefinedCount } = preprocessArray(arr);
 
-        let cmp = 0, mv = 0;
+        let comparisons = 0;
+        let moves = 0;
 
-        for (let i = 1; i < values.length; i++) {
-            let cur = values[i];
+        for (let i = 1; i < clean.length; i++) {
+            const key = clean[i];
             let j = i - 1;
 
             while (j >= 0) {
-                cmp++;
-                if (!(asc ? values[j] > cur : values[j] < cur)) break;
+                comparisons++;
+                const shouldShift = ascending ? clean[j] > key : clean[j] < key;
+                if (!shouldShift) break;
 
-                values[j + 1] = values[j];
-                mv++;
+                clean[j + 1] = clean[j];
+                moves++;
                 j--;
             }
 
-            values[j + 1] = cur;
-            mv++;
+            clean[j + 1] = key;
+            moves++;
         }
 
-        mergeBack(data, values, empty);
-        showInfo("Insertion", cmp, mv, empty > 0, data);
-        return data;
-    };
+        postprocessArray(arr, clean, undefinedCount);
+        printStats("Сортування вставками", comparisons, moves, undefinedCount > 0, arr);
+        return arr;
+    }
 
-    // Shell
-    const shell = (data, asc = true) => {
-        checkInput(data);
-        const { values, empty } = splitArray(data);
+    function shellSort(arr, ascending = true) {
+        ensureArray(arr);
+        const { clean, undefinedCount } = preprocessArray(arr);
 
-        let cmp = 0, mv = 0;
+        let comparisons = 0;
+        let moves = 0;
+        const n = clean.length;
 
-        for (let gap = Math.floor(values.length / 2); gap > 0; gap >>= 1) {
-            for (let i = gap; i < values.length; i++) {
-                let temp = values[i];
+        for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
+            for (let i = gap; i < n; i++) {
+                const temp = clean[i];
                 let j = i;
 
                 while (j >= gap) {
-                    cmp++;
-                    if (!(asc ? values[j - gap] > temp : values[j - gap] < temp)) break;
+                    comparisons++;
+                    const shouldShift = ascending ? clean[j - gap] > temp : clean[j - gap] < temp;
+                    if (!shouldShift) break;
 
-                    values[j] = values[j - gap];
-                    mv++;
+                    clean[j] = clean[j - gap];
+                    moves++;
                     j -= gap;
                 }
 
-                values[j] = temp;
-                mv++;
+                clean[j] = temp;
+                moves++;
             }
         }
 
-        mergeBack(data, values, empty);
-        showInfo("Shell", cmp, mv, empty > 0, data);
-        return data;
-    };
+        postprocessArray(arr, clean, undefinedCount);
+        printStats("Сортування Шелла", comparisons, moves, undefinedCount > 0, arr);
+        return arr;
+    }
 
-    // Quick
-    const quick = (data, asc = true) => {
-        checkInput(data);
-        const { values, empty } = splitArray(data);
+    function quickSort(arr, ascending = true) {
+        ensureArray(arr);
+        const { clean, undefinedCount } = preprocessArray(arr);
 
-        let cmp = 0, mv = 0;
+        let comparisons = 0;
+        let moves = 0;
 
-        const qs = (l, r) => {
-            if (l >= r) return;
+        function sort(data, left, right) {
+            if (left >= right) return;
 
-            let pivot = values[(l + r) >> 1];
-            let i = l, j = r;
+            const pivot = data[Math.floor((left + right) / 2)];
+            let i = left;
+            let j = right;
 
             while (i <= j) {
-                while ((cmp++, asc ? values[i] < pivot : values[i] > pivot)) i++;
-                while ((cmp++, asc ? values[j] > pivot : values[j] < pivot)) j--;
+                while (true) {
+                    comparisons++;
+                    if (ascending ? data[i] < pivot : data[i] > pivot) {
+                        i++;
+                    } else {
+                        break;
+                    }
+                }
+
+                while (true) {
+                    comparisons++;
+                    if (ascending ? data[j] > pivot : data[j] < pivot) {
+                        j--;
+                    } else {
+                        break;
+                    }
+                }
 
                 if (i <= j) {
                     if (i !== j) {
-                        [values[i], values[j]] = [values[j], values[i]];
-                        mv++;
+                        [data[i], data[j]] = [data[j], data[i]];
+                        moves++;
                     }
-                    i++; j--;
+                    i++;
+                    j--;
                 }
             }
 
-            if (l < j) qs(l, j);
-            if (i < r) qs(i, r);
-        };
+            if (left < j) sort(data, left, j);
+            if (i < right) sort(data, i, right);
+        }
 
-        qs(0, values.length - 1);
+        sort(clean, 0, clean.length - 1);
 
-        mergeBack(data, values, empty);
-        showInfo("Quick", cmp, mv, empty > 0, data);
-        return data;
-    };
+        postprocessArray(arr, clean, undefinedCount);
+        printStats("Сортування Хоара (QuickSort)", comparisons, moves, undefinedCount > 0, arr);
+        return arr;
+    }
 
     return {
-        bubble,
-        select,
-        insert,
-        shell,
-        quick
+        bubbleSort,
+        selectionSort,
+        insertionSort,
+        shellSort,
+        quickSort
     };
-
 })();
 
-window.SortToolkit = SortToolkit;
+window.SortLib = SortLib;

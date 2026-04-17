@@ -6,28 +6,25 @@
 </head>
 <body>
 
-    <h2>Введення даних користувача</h2>
+    <h2>Анкета</h2>
 
-    <!-- Поле вводу -->
-    <input type="text" id="userInput" placeholder="Введіть своє ім'я">
+    <input type="text" id="name" placeholder="Введіть ім'я">
+    <input type="number" id="age" placeholder="Введіть вік">
 
-    <!-- Кнопка -->
-    <button onclick="showMessage()">Натисни мене</button>
+    <button onclick="showInfo()">Показати</button>
 
-    <!-- Блок для виводу -->
     <p id="output"></p>
 
     <script>
-        function showMessage() {
-            // Отримуємо значення з поля вводу
-            let name = document.getElementById("userInput").value;
+        function showInfo() {
+            let name = document.getElementById("name").value;
+            let age = document.getElementById("age").value;
 
-            // Перевірка на пусте значення
-            if (name === "") {
-                document.getElementById("output").textContent = "Будь ласка, введіть ім'я!";
+            if (name === "" || age === "") {
+                document.getElementById("output").textContent = "Заповніть всі поля!";
             } else {
-                // Виводимо результат
-                document.getElementById("output").textContent = "Привіт, " + name + "!";
+                document.getElementById("output").innerHTML =
+                    "Привіт, <b>" + name + "</b>! Тобі " + age + " років.";
             }
         }
     </script>

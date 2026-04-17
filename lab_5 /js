@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Ввід користувача</title>
+</head>
+<body>
+
+    <h2>Введення даних користувача</h2>
+
+    <!-- Поле вводу -->
+    <input type="text" id="userInput" placeholder="Введіть своє ім'я">
+
+    <!-- Кнопка -->
+    <button onclick="showMessage()">Натисни мене</button>
+
+    <!-- Блок для виводу -->
+    <p id="output"></p>
+
+    <script>
+        function showMessage() {
+            // Отримуємо значення з поля вводу
+            let name = document.getElementById("userInput").value;
+
+            // Перевірка на пусте значення
+            if (name === "") {
+                document.getElementById("output").textContent = "Будь ласка, введіть ім'я!";
+            } else {
+                // Виводимо результат
+                document.getElementById("output").textContent = "Привіт, " + name + "!";
+            }
+        }
+    </script>
+
+</body>
+</html>

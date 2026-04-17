@@ -1,0 +1,24 @@
+body {
+  font-family: Arial;
+  text-align: center;
+}
+
+#gameArea {
+  display: none;
+  position: relative;
+  width: 100%;
+  height: 80vh;
+  border: 2px solid black;
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+#box {
+  position: absolute;
+  cursor: pointer;
+}
+
+#score {
+  font-size: 20px;
+  margin-top: 10px;
+}

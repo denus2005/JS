@@ -1,75 +1,76 @@
-let box = document.getElementById("box");
-let gameArea = document.getElementById("gameArea");
-let startBtn = document.getElementById("startBtn");
+document.addEventListener("DOMContentLoaded", () => {
 
-let timer;
-let score = 0;
-let isGameActive = false;
-let currentLevel;
+  let box = document.getElementById("box");
+  let gameArea = document.getElementById("gameArea");
+  let startBtn = document.getElementById("startBtn");
 
-const levels = {
-  easy: { time: 4000, size: 70 },
-  medium: { time: 2000, size: 55 },
-  hard: { time: 1000, size: 40 },
-  insane: { time: 700, size: 30 }
-};
+  let timer;
+  let score = 0;
+  let isGameActive = false;
+  let currentLevel;
 
-startBtn.onclick = () => {
-  const difficulty = document.getElementById("difficulty").value;
-  const color = document.getElementById("color").value;
+  const levels = {
+    easy: { time: 4000, size: 70 },
+    medium: { time: 2000, size: 55 },
+    hard: { time: 1000, size: 40 },
+    insane: { time: 700, size: 30 }
+  };
 
-  if (!difficulty || !color) return;
+  startBtn.onclick = () => {
+    const difficulty = document.getElementById("difficulty").value;
+    const color = document.getElementById("color").value;
 
-  currentLevel = levels[difficulty];
+    if (!difficulty || !color) return;
 
-  score = 0;
-  document.getElementById("score").innerText = "Очки: 0";
+    currentLevel = levels[difficulty];
 
-  box.style.background = color;
-  box.style.width = currentLevel.size + "px";
-  box.style.height = currentLevel.size + "px";
+    score = 0;
+    document.getElementById("score").innerText = "Очки: 0";
 
-  document.getElementById("menu").style.display = "none";
-  gameArea.style.display = "block";
+    box.style.background = color;
+    box.style.width = currentLevel.size + "px";
+    box.style.height = currentLevel.size + "px";
 
-  isGameActive = true;
+    document.getElementById("menu").style.display = "none";
+    gameArea.style.display = "block";
 
-  moveBox();
-  startRound();
-};
+    isGameActive = true;
 
-function moveBox() {
-  const areaRect = gameArea.getBoundingClientRect();
+    moveBox();
+    startRound();
+  };
 
-  const maxX = areaRect.width - box.offsetWidth;
-  const maxY = areaRect.height - box.offsetHeight;
+  function moveBox() {
+    const areaRect = gameArea.getBoundingClientRect();
 
-  const x = Math.random() * maxX;
-  const y = Math.random() * maxY;
+    const maxX = areaRect.width - box.offsetWidth;
+    const maxY = areaRect.height - box.offsetHeight;
 
-  box.style.left = x + "px";
-  box.style.top = y + "px";
-}
+    box.style.left = Math.random() * maxX + "px";
+    box.style.top = Math.random() * maxY + "px";
+  }
 
-function startRound() {
-  clearTimeout(timer);
-  timer = setTimeout(endGame, currentLevel.time);
-}
+  function startRound() {
+    clearTimeout(timer);
+    timer = setTimeout(endGame, currentLevel.time);
+  }
 
-box.onclick = () => {
-  if (!isGameActive) return;
+  box.onclick = () => {
+    if (!isGameActive) return;
 
-  score++;
-  document.getElementById("score").innerText = "Очки: " + score;
+    score++;
+    document.getElementById("score").innerText = "Очки: " + score;
 
-  moveBox();
-  startRound();
-};
+    moveBox();
+    startRound();
+  };
 
-function endGame() {
-  isGameActive = false;
-  alert("Гра завершена! Очки: " + score);
+  function endGame() {
+    isGameActive = false;
+    alert("Гра завершена! Очки: " + score);
 
-  gameArea.style.display = "none";
-  document.getElementById("menu").style.display = "block";
-}
+    gameArea.style.display = "none";
+    document.getElementById("menu").style.display = "block";
+  }
+
+});

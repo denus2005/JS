@@ -5,14 +5,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const startBtn = document.getElementById("startBtn");
 
   let interval;
+  let timer;
   let isGameActive = false;
-  let startTime;
+
+  let timeLeft;
 
   const levels = {
-    easy: 70,
-    medium: 55,
-    hard: 40,
-    insane: 30
+    easy: { time: 5, size: 70 },
+    medium: { time: 4, size: 55 },
+    hard: { time: 3, size: 40 },
+    insane: { time: 2, size: 30 }
   };
 
   startBtn.onclick = () => {
@@ -21,34 +23,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!difficulty || !color) return;
 
+    const level = levels[difficulty];
+
+    timeLeft = level.time;
+
     document.getElementById("score").innerText = "Очки: 0";
-    document.getElementById("timer").innerText = "Час: 0.0 c";
+    document.getElementById("timer").innerText = "Час: " + timeLeft;
 
     box.style.background = color;
-    box.style.width = levels[difficulty] + "px";
-    box.style.height = levels[difficulty] + "px";
+    box.style.width = level.size + "px";
+    box.style.height = level.size + "px";
 
     document.getElementById("menu").style.display = "none";
     gameArea.style.display = "block";
 
     isGameActive = true;
 
-    startTime = Date.now();
-    startTimer();
     moveBox();
+    startCountdown();
   };
 
-  function startTimer() {
+  function startCountdown() {
     clearInterval(interval);
 
     interval = setInterval(() => {
-      const sec = ((Date.now() - startTime) / 1000).toFixed(1);
-      document.getElementById("timer").innerText = "Час: " + sec + " c";
-    }, 100);
-  }
+      timeLeft--;
 
-  function stopTimer() {
-    clearInterval(interval);
+      document.getElementById("timer").innerText = "Час: " + timeLeft;
+
+      if (timeLeft <= 0) {
+        endGame(false); // програш
+      }
+    }, 1000);
   }
 
   function moveBox() {
@@ -64,15 +70,22 @@ document.addEventListener("DOMContentLoaded", () => {
   box.onclick = () => {
     if (!isGameActive) return;
 
+    endGame(true); // виграв (встиг клікнути)
+  };
+
+  function endGame(won) {
     isGameActive = false;
-    stopTimer();
 
-    const finalTime = ((Date.now() - startTime) / 1000).toFixed(1);
+    clearInterval(interval);
 
-    alert("Ти натиснув! Час до кліку: " + finalTime + " секунд");
+    if (won) {
+      alert("Ти встиг клікнути! 🎉");
+    } else {
+      alert("Час вийшов! 💥 Програш");
+    }
 
     gameArea.style.display = "none";
     document.getElementById("menu").style.display = "block";
-  };
+  }
 
 });

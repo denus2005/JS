@@ -5,9 +5,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let startBtn = document.getElementById("startBtn");
 
   let timer;
+  let interval;
   let score = 0;
   let isGameActive = false;
   let currentLevel;
+  let timeLeft;
 
   const levels = {
     easy: { time: 4000, size: 70 },
@@ -27,6 +29,9 @@ document.addEventListener("DOMContentLoaded", () => {
     score = 0;
     document.getElementById("score").innerText = "Очки: 0";
 
+    timeLeft = Math.floor(currentLevel.time / 1000);
+    document.getElementById("timer").innerText = "Час: " + timeLeft;
+
     box.style.background = color;
     box.style.width = currentLevel.size + "px";
     box.style.height = currentLevel.size + "px";
@@ -38,6 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     moveBox();
     startRound();
+    startTimer();
   };
 
   function moveBox() {
@@ -55,6 +61,19 @@ document.addEventListener("DOMContentLoaded", () => {
     timer = setTimeout(endGame, currentLevel.time);
   }
 
+  function startTimer() {
+    clearInterval(interval);
+
+    interval = setInterval(() => {
+      timeLeft--;
+      document.getElementById("timer").innerText = "Час: " + timeLeft;
+
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+      }
+    }, 1000);
+  }
+
   box.onclick = () => {
     if (!isGameActive) return;
 
@@ -67,6 +86,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function endGame() {
     isGameActive = false;
+
+    clearTimeout(timer);
+    clearInterval(interval);
+
     alert("Гра завершена! Очки: " + score);
 
     gameArea.style.display = "none";

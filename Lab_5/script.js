@@ -9,7 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let score = 0;
   let isGameActive = false;
   let currentLevel;
-  let timeLeft;
+
+  let startTime; // ⬅️ нове: час старту
 
   const levels = {
     easy: { time: 4000, size: 70 },
@@ -29,8 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
     score = 0;
     document.getElementById("score").innerText = "Очки: 0";
 
-    timeLeft = Math.floor(currentLevel.time / 1000);
-    document.getElementById("timer").innerText = "Час: " + timeLeft;
+    document.getElementById("timer").innerText = "Час: 0.0 c";
 
     box.style.background = color;
     box.style.width = currentLevel.size + "px";
@@ -61,17 +61,16 @@ document.addEventListener("DOMContentLoaded", () => {
     timer = setTimeout(endGame, currentLevel.time);
   }
 
+  // ⬇️ ТЕПЕР ЦЕ СЕКУНДОМІР (йде вгору)
   function startTimer() {
     clearInterval(interval);
 
-    interval = setInterval(() => {
-      timeLeft--;
-      document.getElementById("timer").innerText = "Час: " + timeLeft;
+    startTime = Date.now();
 
-      if (timeLeft <= 0) {
-        clearInterval(interval);
-      }
-    }, 1000);
+    interval = setInterval(() => {
+      let seconds = ((Date.now() - startTime) / 1000).toFixed(1);
+      document.getElementById("timer").innerText = "Час: " + seconds + " c";
+    }, 100);
   }
 
   box.onclick = () => {
@@ -90,7 +89,9 @@ document.addEventListener("DOMContentLoaded", () => {
     clearTimeout(timer);
     clearInterval(interval);
 
-    alert("Гра завершена! Очки: " + score);
+    let finalTime = ((Date.now() - startTime) / 1000).toFixed(1);
+
+    alert("Гра завершена! Ти протримався: " + finalTime + " секунд\nОчки: " + score);
 
     gameArea.style.display = "none";
     document.getElementById("menu").style.display = "block";

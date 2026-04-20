@@ -1,20 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  let box = document.getElementById("box");
-  let gameArea = document.getElementById("gameArea");
-  let startBtn = document.getElementById("startBtn");
+  const box = document.getElementById("box");
+  const gameArea = document.getElementById("gameArea");
+  const startBtn = document.getElementById("startBtn");
 
   let interval;
-  let score = 0;
   let isGameActive = false;
-
   let startTime;
 
   const levels = {
-    easy: { size: 70 },
-    medium: { size: 55 },
-    hard: { size: 40 },
-    insane: { size: 30 }
+    easy: 70,
+    medium: 55,
+    hard: 40,
+    insane: 30
   };
 
   startBtn.onclick = () => {
@@ -23,12 +21,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!difficulty || !color) return;
 
-    score = 0;
     document.getElementById("score").innerText = "Очки: 0";
+    document.getElementById("timer").innerText = "Час: 0.0 c";
 
     box.style.background = color;
-    box.style.width = levels[difficulty].size + "px";
-    box.style.height = levels[difficulty].size + "px";
+    box.style.width = levels[difficulty] + "px";
+    box.style.height = levels[difficulty] + "px";
 
     document.getElementById("menu").style.display = "none";
     gameArea.style.display = "block";
@@ -44,8 +42,8 @@ document.addEventListener("DOMContentLoaded", () => {
     clearInterval(interval);
 
     interval = setInterval(() => {
-      let seconds = ((Date.now() - startTime) / 1000).toFixed(1);
-      document.getElementById("timer").innerText = "Час: " + seconds + " c";
+      const sec = ((Date.now() - startTime) / 1000).toFixed(1);
+      document.getElementById("timer").innerText = "Час: " + sec + " c";
     }, 100);
   }
 
@@ -56,25 +54,22 @@ document.addEventListener("DOMContentLoaded", () => {
   function moveBox() {
     const rect = gameArea.getBoundingClientRect();
 
-    const maxX = rect.width - box.offsetWidth;
-    const maxY = rect.height - box.offsetHeight;
+    const x = Math.random() * (rect.width - box.offsetWidth);
+    const y = Math.random() * (rect.height - box.offsetHeight);
 
-    box.style.left = Math.random() * maxX + "px";
-    box.style.top = Math.random() * maxY + "px";
+    box.style.left = x + "px";
+    box.style.top = y + "px";
   }
 
   box.onclick = () => {
     if (!isGameActive) return;
 
-    score++;
-    document.getElementById("score").innerText = "Очки: " + score;
-
-    let finalTime = ((Date.now() - startTime) / 1000).toFixed(1);
-
     isGameActive = false;
     stopTimer();
 
-    alert("Ти клікнув! Час: " + finalTime + " секунд");
+    const finalTime = ((Date.now() - startTime) / 1000).toFixed(1);
+
+    alert("Ти натиснув! Час до кліку: " + finalTime + " секунд");
 
     gameArea.style.display = "none";
     document.getElementById("menu").style.display = "block";

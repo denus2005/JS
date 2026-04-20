@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1000);
   }
 
-  function resetTimer() {
+  function restartTimer() {
     clearInterval(interval);
     startCountdown();
   }
@@ -77,17 +77,17 @@ document.addEventListener("DOMContentLoaded", () => {
   box.onclick = () => {
     if (!isGameActive) return;
 
-    // ОНОВЛЕННЯ ОЧКІВ
+    // +1 очко
     const scoreEl = document.getElementById("score");
     let score = parseInt(scoreEl.innerText.split(": ")[1]);
     score++;
     scoreEl.innerText = "Очки: " + score;
 
-    // 🔥 рух + таймер скидається
+    // нова позиція + таймер заново
     moveBox();
-    resetTimer();
+    restartTimer();
 
-    //НІЯКИХ alert / повідомлень тут немає
+    // ❗️ НІЯКОГО endGame тут НЕМАЄ
   };
 
   function endGame() {

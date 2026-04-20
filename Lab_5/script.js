@@ -31,14 +31,14 @@ document.addEventListener("DOMContentLoaded", () => {
       updateTimerUI();
 
       if (timeLeft <= 0) {
-        endGame(false); // програш тільки тут
+        endGame(); // тільки програш
       }
     }, 1000);
   }
 
   function resetTimer() {
-    clearInterval(interval);      // важливо: зупиняємо старий таймер
-    startCountdown();             // запускаємо новий
+    clearInterval(interval);
+    startCountdown();
   }
 
   function moveBox() {
@@ -57,7 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!difficulty || !color) return;
 
     const level = levels[difficulty];
-
     baseTime = level.time;
 
     document.getElementById("score").innerText = "Очки: 0";
@@ -78,18 +77,20 @@ document.addEventListener("DOMContentLoaded", () => {
   box.onclick = () => {
     if (!isGameActive) return;
 
-    // +1 очко
-    let scoreEl = document.getElementById("score");
+    // ОНОВЛЕННЯ ОЧКІВ
+    const scoreEl = document.getElementById("score");
     let score = parseInt(scoreEl.innerText.split(": ")[1]);
     score++;
     scoreEl.innerText = "Очки: " + score;
 
-    // нова позиція + повний перезапуск таймера
+    // 🔥 рух + таймер скидається
     moveBox();
-    resetTimer(); // 🔥 головна зміна
+    resetTimer();
+
+    //НІЯКИХ alert / повідомлень тут немає
   };
 
-  function endGame(won) {
+  function endGame() {
     isGameActive = false;
     clearInterval(interval);
 

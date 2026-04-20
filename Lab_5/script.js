@@ -4,19 +4,17 @@ document.addEventListener("DOMContentLoaded", () => {
   let gameArea = document.getElementById("gameArea");
   let startBtn = document.getElementById("startBtn");
 
-  let timer;
   let interval;
   let score = 0;
   let isGameActive = false;
-  let currentLevel;
 
   let startTime;
 
   const levels = {
-    easy: { time: 4000, size: 70 },
-    medium: { time: 2000, size: 55 },
-    hard: { time: 1000, size: 40 },
-    insane: { time: 700, size: 30 }
+    easy: { size: 70 },
+    medium: { size: 55 },
+    hard: { size: 40 },
+    insane: { size: 30 }
   };
 
   startBtn.onclick = () => {
@@ -25,47 +23,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!difficulty || !color) return;
 
-    currentLevel = levels[difficulty];
-
     score = 0;
     document.getElementById("score").innerText = "Очки: 0";
 
-    document.getElementById("timer").innerText = "Час: 0.0 c";
-
     box.style.background = color;
-    box.style.width = currentLevel.size + "px";
-    box.style.height = currentLevel.size + "px";
+    box.style.width = levels[difficulty].size + "px";
+    box.style.height = levels[difficulty].size + "px";
 
     document.getElementById("menu").style.display = "none";
     gameArea.style.display = "block";
 
     isGameActive = true;
 
-    moveBox();
-    startRound();
+    startTime = Date.now();
     startTimer();
+    moveBox();
   };
 
-  function moveBox() {
-    const areaRect = gameArea.getBoundingClientRect();
-
-    const maxX = areaRect.width - box.offsetWidth;
-    const maxY = areaRect.height - box.offsetHeight;
-
-    box.style.left = Math.random() * maxX + "px";
-    box.style.top = Math.random() * maxY + "px";
-  }
-
-  function startRound() {
-    clearTimeout(timer);
-    timer = setTimeout(endGame, currentLevel.time);
-  }
-
-  // ⏱ ТАЙМЕР ВИЖИВАННЯ
   function startTimer() {
     clearInterval(interval);
-
-    startTime = Date.now();
 
     interval = setInterval(() => {
       let seconds = ((Date.now() - startTime) / 1000).toFixed(1);
@@ -77,28 +53,31 @@ document.addEventListener("DOMContentLoaded", () => {
     clearInterval(interval);
   }
 
+  function moveBox() {
+    const rect = gameArea.getBoundingClientRect();
+
+    const maxX = rect.width - box.offsetWidth;
+    const maxY = rect.height - box.offsetHeight;
+
+    box.style.left = Math.random() * maxX + "px";
+    box.style.top = Math.random() * maxY + "px";
+  }
+
   box.onclick = () => {
     if (!isGameActive) return;
 
     score++;
     document.getElementById("score").innerText = "Очки: " + score;
 
-    moveBox();
-    startRound();
-  };
-
-  function endGame() {
-    isGameActive = false;
-
-    clearTimeout(timer);
-    stopTimer();
-
     let finalTime = ((Date.now() - startTime) / 1000).toFixed(1);
 
-    alert("Гра завершена! Ти протримався: " + finalTime + " секунд\nОчки: " + score);
+    isGameActive = false;
+    stopTimer();
+
+    alert("Ти клікнув! Час: " + finalTime + " секунд");
 
     gameArea.style.display = "none";
     document.getElementById("menu").style.display = "block";
-  }
+  };
 
 });

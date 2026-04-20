@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let isGameActive = false;
   let currentLevel;
 
-  let startTime; // ⬅️ нове: час старту
+  let startTime;
 
   const levels = {
     easy: { time: 4000, size: 70 },
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
     timer = setTimeout(endGame, currentLevel.time);
   }
 
-  // ⬇️ ТЕПЕР ЦЕ СЕКУНДОМІР (йде вгору)
+  // ⏱ ТАЙМЕР ВИЖИВАННЯ
   function startTimer() {
     clearInterval(interval);
 
@@ -71,6 +71,10 @@ document.addEventListener("DOMContentLoaded", () => {
       let seconds = ((Date.now() - startTime) / 1000).toFixed(1);
       document.getElementById("timer").innerText = "Час: " + seconds + " c";
     }, 100);
+  }
+
+  function stopTimer() {
+    clearInterval(interval);
   }
 
   box.onclick = () => {
@@ -87,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
     isGameActive = false;
 
     clearTimeout(timer);
-    clearInterval(interval);
+    stopTimer();
 
     let finalTime = ((Date.now() - startTime) / 1000).toFixed(1);
 

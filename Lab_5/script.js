@@ -1,13 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
-
   const box = document.getElementById("box");
   const gameArea = document.getElementById("gameArea");
   const startBtn = document.getElementById("startBtn");
 
   let interval;
-  let timer;
   let isGameActive = false;
 
+  let baseTime;
   let timeLeft;
 
   const levels = {
@@ -17,6 +16,40 @@ document.addEventListener("DOMContentLoaded", () => {
     insane: { time: 2, size: 30 }
   };
 
+  function updateTimerUI() {
+    document.getElementById("timer").innerText = "Час: " + timeLeft;
+  }
+
+  function startCountdown() {
+    clearInterval(interval);
+
+    timeLeft = baseTime;
+    updateTimerUI();
+
+    interval = setInterval(() => {
+      timeLeft--;
+      updateTimerUI();
+
+      if (timeLeft <= 0) {
+        endGame(false);
+      }
+    }, 1000);
+  }
+
+  function resetTimer() {
+    timeLeft = baseTime;
+    updateTimerUI();
+  }
+
+  function moveBox() {
+    const rect = gameArea.getBoundingClientRect();
+    const x = Math.random() * (rect.width - box.offsetWidth);
+    const y = Math.random() * (rect.height - box.offsetHeight);
+
+    box.style.left = x + "px";
+    box.style.top = y + "px";
+  }
+
   startBtn.onclick = () => {
     const difficulty = document.getElementById("difficulty").value;
     const color = document.getElementById("color").value;
@@ -25,10 +58,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const level = levels[difficulty];
 
-    timeLeft = level.time;
+    baseTime = level.time;
 
     document.getElementById("score").innerText = "Очки: 0";
-    document.getElementById("timer").innerText = "Час: " + timeLeft;
+
+    timeLeft = baseTime;
+    updateTimerUI();
 
     box.style.background = color;
     box.style.width = level.size + "px";
@@ -43,43 +78,26 @@ document.addEventListener("DOMContentLoaded", () => {
     startCountdown();
   };
 
-  function startCountdown() {
-    clearInterval(interval);
-
-    interval = setInterval(() => {
-      timeLeft--;
-
-      document.getElementById("timer").innerText = "Час: " + timeLeft;
-
-      if (timeLeft <= 0) {
-        endGame(false); // програш
-      }
-    }, 1000);
-  }
-
-  function moveBox() {
-    const rect = gameArea.getBoundingClientRect();
-
-    const x = Math.random() * (rect.width - box.offsetWidth);
-    const y = Math.random() * (rect.height - box.offsetHeight);
-
-    box.style.left = x + "px";
-    box.style.top = y + "px";
-  }
-
   box.onclick = () => {
     if (!isGameActive) return;
 
-    endGame(true); // виграв (встиг клікнути)
+    // додаємо очко
+    let scoreEl = document.getElementById("score");
+    let score = parseInt(scoreEl.innerText.split(": ")[1]);
+    score++;
+    scoreEl.innerText = "Очки: " + score;
+
+    // нова позиція + перезапуск таймера
+    moveBox();
+    resetTimer();
   };
 
   function endGame(won) {
     isGameActive = false;
-
     clearInterval(interval);
 
     if (won) {
-      alert("Ти встиг клікнути! 🎉");
+      alert("Ти виграв! 🎉");
     } else {
       alert("Час вийшов! 💥 Програш");
     }
@@ -87,5 +105,4 @@ document.addEventListener("DOMContentLoaded", () => {
     gameArea.style.display = "none";
     document.getElementById("menu").style.display = "block";
   }
-
 });

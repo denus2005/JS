@@ -18,7 +18,7 @@ body {
   cursor: pointer;
 }
 
-#score {
+#score, #timer {
   font-size: 20px;
   margin-top: 10px;
 }

@@ -6,60 +6,100 @@
 
 body {
     font-family: Arial, sans-serif;
-    background: #f4f4f4;
+    background: linear-gradient(to bottom, #f4f4f4, #e9eef5);
+    color: #222;
 }
 
 
+/* HEADER */
+
 header {
-    background: #222;
+    background: #1e293b;
     color: white;
 
     display: flex;
     justify-content: space-between;
     align-items: center;
 
-    padding: 15px 20px;
+    padding: 18px 25px;
     position: relative;
+
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
 .logo {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: bold;
+    letter-spacing: 1px;
+    color: #38bdf8;
 }
 
 
+/* NAVIGATION */
+
 nav {
     display: flex;
-    gap: 20px;
+    gap: 25px;
 }
 
 nav a {
     color: white;
     text-decoration: none;
     transition: 0.3s;
+    font-weight: 500;
+    position: relative;
+}
+
+nav a::after {
+    content: "";
+
+    position: absolute;
+    left: 0;
+    bottom: -5px;
+
+    width: 0;
+    height: 2px;
+
+    background: #38bdf8;
+    transition: 0.3s;
+}
+
+nav a:hover::after {
+    width: 100%;
 }
 
 nav a:hover {
-    color: orange;
+    color: #38bdf8;
 }
 
+
+/* BURGER */
 
 .hamburger {
     display: none;
-    font-size: 30px;
+    font-size: 32px;
     cursor: pointer;
+    transition: 0.3s;
+}
+
+.hamburger:hover {
+    transform: scale(1.1);
 }
 
 
+/* CAROUSEL */
+
 .carousel {
     width: 90%;
-    max-width: 900px;
+    max-width: 950px;
 
-    margin: 40px auto;
+    margin: 45px auto;
     overflow: hidden;
 
     position: relative;
-    border-radius: 10px;
+    border-radius: 18px;
+
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
 
 .slides {
@@ -77,6 +117,8 @@ nav a:hover {
 }
 
 
+/* BUTTONS */
+
 .prev,
 .next {
     position: absolute;
@@ -88,60 +130,87 @@ nav a:hover {
     color: white;
 
     border: none;
-    padding: 10px;
+    padding: 12px 16px;
 
     cursor: pointer;
     font-size: 22px;
+
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.prev:hover,
+.next:hover {
+    background: #38bdf8;
 }
 
 .prev {
-    left: 10px;
+    left: 15px;
 }
 
 .next {
-    right: 10px;
+    right: 15px;
 }
 
+
+/* DOTS */
 
 .dots {
     text-align: center;
-    margin-top: 10px;
+    margin-top: 15px;
 }
 
 .dot {
-    height: 15px;
-    width: 15px;
+    height: 14px;
+    width: 14px;
 
     margin: 5px;
 
-    background: gray;
+    background: #94a3b8;
 
     border-radius: 50%;
     display: inline-block;
 
     cursor: pointer;
+    transition: 0.3s;
+}
+
+.dot:hover {
+    transform: scale(1.2);
 }
 
 .dot.active {
-    background: orange;
+    background: #38bdf8;
 }
 
+
+/* IMAGES */
 
 .large-images,
 .medium-images {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 25px;
 
-    margin: 40px 0;
+    margin: 50px 0;
     flex-wrap: wrap;
 }
 
 .large-images img,
 .medium-images img {
-    border-radius: 10px;
+    border-radius: 15px;
+    transition: 0.4s;
+
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
 }
 
+.large-images img:hover,
+.medium-images img:hover {
+    transform: scale(1.04);
+}
+
+
+/* DESKTOP */
 
 @media (min-width: 768px) {
 
@@ -155,6 +224,8 @@ nav a:hover {
 }
 
 
+/* MOBILE */
+
 @media (max-width: 767px) {
 
     .hamburger {
@@ -164,22 +235,24 @@ nav a:hover {
     nav {
         position: absolute;
 
-        top: 70px;
+        top: 75px;
         right: 20px;
 
-        background: #333;
+        background: #1e293b;
 
         flex-direction: column;
 
-        width: 200px;
+        width: 220px;
 
-        padding: 15px;
+        padding: 18px;
 
-        border-radius: 10px;
+        border-radius: 15px;
 
         display: none;
 
         animation: dropdown 0.4s ease;
+
+        box-shadow: 0 6px 15px rgba(0,0,0,0.25);
     }
 
     nav.show {
@@ -195,6 +268,8 @@ nav a:hover {
     }
 }
 
+
+/* ANIMATION */
 
 @keyframes dropdown {
 

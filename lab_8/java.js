@@ -20,8 +20,7 @@ const totalSlides = document.querySelectorAll(".slide").length;
 
 function updateCarousel() {
 
-    slides.style.transform =
-        `translateX(-${index * 100}%)`;
+  slides.style.transform = translateX(-${index * 100}%);
 
     dots.forEach(dot =>
         dot.classList.remove("active")
@@ -55,7 +54,5 @@ function currentSlide(n) {
 // AUTO SLIDE
 
 setInterval(() => {
-
     moveSlide(1);
-
-}, 3000);
+}, 5000);
